@@ -3,10 +3,11 @@ import torch
 
 class Agent(object):
     def __init__(self):
-        if torch.cuda.is_available():
-            device = "cuda:0"
-        else:
-            device = "cpu"
+        # if torch.cuda.is_available():
+        #     device = "cuda:0"
+        # else:
+        #     device = "cpu"
+        device = 'cpu'
         self.device = torch.device(device)
 
     def act(self, observation):
