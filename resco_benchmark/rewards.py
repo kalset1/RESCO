@@ -24,6 +24,27 @@ def wait_norm(signals):
         rewards[signal_id] = np.clip(-total_wait/224, -4, 4).astype(np.float32)
     return rewards
 
+def wait_pressure_mix(signals, wait_weight=0.5, pressure_weight=0.5):
+    rewards = dict()
+    for signal_id in signals:
+        total_wait = 0
+        queue_length = 0
+
+        for lane in signals[signal_id].lanes:
+            total_wait += signals[signal_id].full_observation[lane]['total_wait']
+            queue_length += signals[signal_id].full_observation[lane]['queue']
+
+        for lane in signals[signal_id].outbound_lanes:
+            dwn_signal = signals[signal_id].out_lane_to_signalid[lane]
+            if dwn_signal in signals[signal_id].signals:
+                queue_length -= signals[signal_id].signals[dwn_signal].full_observation[lane]['queue']
+
+        wait_reward = -total_wait
+        pressure_reward = -queue_length
+        rewards[signal_id] = wait_weight * wait_reward + pressure_weight * pressure_reward
+
+    return rewards
+
 
 def pressure(signals):
     rewards = dict()

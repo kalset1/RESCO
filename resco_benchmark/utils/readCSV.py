@@ -2,7 +2,7 @@ import os
 import numpy as np
 import sys
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 
 log_dir = os.path.join(os.path.dirname(os.path.dirname(os.getcwd())), 'results' + os.sep)

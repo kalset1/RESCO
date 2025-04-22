@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from resco_benchmark.config.map_config import map_configs
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 
 
