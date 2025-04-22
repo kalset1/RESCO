@@ -75,6 +75,8 @@ for run_name in run_avg:
 
 
 np.set_printoptions(threshold=sys.maxsize)
-with open(output_file, 'a') as out:
+with open(output_file, 'w') as out:
+    out.write(f"{metric} = {{\n")
     for i, res in enumerate(alg_res):
         out.write("'{}': {},\n".format(alg_name[i], res.tolist()))
+    out.write("}\n")
