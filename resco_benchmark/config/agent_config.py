@@ -83,7 +83,7 @@ agent_configs = {
     'IDQN': {
         'agent': IDQN,
         'state': states.drq_norm,
-        'reward': rewards.wait_pressure_mix,
+        'reward': rewards.wait_pressure_delay_mix,
         'max_distance': 200,
         'BATCH_SIZE': 32,
         'GAMMA': 0.99,
