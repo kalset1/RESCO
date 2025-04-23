@@ -1,6 +1,8 @@
 import numpy as np
 
+
 from resco_benchmark.config.mdp_config import mdp_configs
+import traci
 
 
 def wait(signals):
@@ -24,7 +26,7 @@ def wait_norm(signals):
         rewards[signal_id] = np.clip(-total_wait/224, -4, 4).astype(np.float32)
     return rewards
 
-def wait_pressure_mix(signals, wait_weight=0.5, pressure_weight=0.5):
+def wait_pressure_mix(signals, wait_weight=0.9, pressure_weight=0.1):
     rewards = dict()
     for signal_id in signals:
         total_wait = 0
@@ -42,6 +44,38 @@ def wait_pressure_mix(signals, wait_weight=0.5, pressure_weight=0.5):
         wait_reward = -total_wait
         pressure_reward = -queue_length
         rewards[signal_id] = wait_weight * wait_reward + pressure_weight * pressure_reward
+
+    return rewards
+
+def wait_pressure_delay_mix(signals, wait_weight=0.7, pressure_weight=0.1, include_delay=True, delay_weight=0.2):
+    rewards = dict()
+    for signal_id in signals:
+        total_wait = 0
+        queue_length = 0
+        total_delay = 0
+
+        for lane in signals[signal_id].lanes:
+            total_wait += signals[signal_id].full_observation[lane]['total_wait']
+            queue_length += signals[signal_id].full_observation[lane]['queue']
+            if include_delay:
+                edge_id = lane.split("_")[0]
+                max_speed = traci.lane.getMaxSpeed(edge_id + "_0")
+                for vehicle in signals[signal_id].full_observation[lane]['vehicles']:
+                    total_delay += max(0, max_speed - vehicle['speed'])
+
+        for lane in signals[signal_id].outbound_lanes:
+            dwn_signal = signals[signal_id].out_lane_to_signalid[lane]
+            if dwn_signal in signals[signal_id].signals:
+                queue_length -= signals[signal_id].signals[dwn_signal].full_observation[lane]['queue']
+
+        wait_reward = -total_wait
+        pressure_reward = -queue_length
+        delay_reward = -total_delay if include_delay else 0
+        rewards[signal_id] = (
+            wait_weight * wait_reward +
+            pressure_weight * pressure_reward +
+            delay_weight * delay_reward
+        )
 
     return rewards
 
